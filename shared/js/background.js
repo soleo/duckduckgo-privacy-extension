@@ -23,6 +23,41 @@ var stats = require('stats');
 var db = require('db')
 var https = require('https')
 
+
+/*
+ * experimental code substitution setup to validate this technique
+ * see onBeforeRequest handler below.
+ *
+ * The base64 encoded text below was produced for this experiment
+ * by slightly modifying code from
+ *
+ * https://github.com/uBlockOrigin/uAssets/blob/master/filters/resources.txt
+ *
+ * and turning them into base64 manually for purposes of direct validation
+ * ie:
+ *
+ * - save a portion of code as a file
+ * - transform with `base64` on the command line 
+ * - :r into this code
+ *
+ */
+
+var b64dataheader = "data:application/javascript;base64,";
+
+// ga.js replacement
+// based off https://github.com/uBlockOrigin/uAssets/blob/master/filters/resources.txt#L186
+var ga_js_txt =
+  "Y29uc29sZS5sb2coInJ1c3NlbGwtZ2EuanMgcm9vdCIpOwooZnVuY3Rpb24oKSB7CgogICAgY29uc29sZS5sb2coInJ1c3NlbGwtZ2EuanMgYm9keSIpOwoKCXZhciBub29wZm4gPSBmdW5jdGlvbigpIHsKICAgICAgICBjb25zb2xlLmxvZygicnVzc2VsbCBnYSBub29wIik7CgkJOwoJfTsKCS8vCgl2YXIgR2FxID0gZnVuY3Rpb24oKSB7CgkJOwoJfTsKCUdhcS5wcm90b3R5cGUuTmEgPSBub29wZm47CglHYXEucHJvdG90eXBlLk8gPSBub29wZm47CglHYXEucHJvdG90eXBlLlNhID0gbm9vcGZuOwoJR2FxLnByb3RvdHlwZS5UYSA9IG5vb3BmbjsKCUdhcS5wcm90b3R5cGUuVmEgPSBub29wZm47CglHYXEucHJvdG90eXBlLl9jcmVhdGVBc3luY1RyYWNrZXIgPSBub29wZm47CglHYXEucHJvdG90eXBlLl9nZXRBc3luY1RyYWNrZXIgPSBub29wZm47CglHYXEucHJvdG90eXBlLl9nZXRQbHVnaW4gPSBub29wZm47CglHYXEucHJvdG90eXBlLnB1c2ggPSBmdW5jdGlvbihhKSB7CgkJaWYgKCB0eXBlb2YgYSA9PT0gJ2Z1bmN0aW9uJyApIHsKCQkJYSgpOyByZXR1cm47CgkJfQoJCWlmICggQXJyYXkuaXNBcnJheShhKSA9PT0gZmFsc2UgKSB7CgkJCXJldHVybjsKCQl9CgkJLy8gaHR0cHM6Ly90d2l0dGVyLmNvbS9jYXRvdml0Y2gvc3RhdHVzLzc3NjQ0MjkzMDM0NTIxODA0OAoJCS8vIGh0dHBzOi8vZGV2ZWxvcGVycy5nb29nbGUuY29tL2FuYWx5dGljcy9kZXZndWlkZXMvY29sbGVjdGlvbi9nYWpzL21ldGhvZHMvZ2FKU0FwaURvbWFpbkRpcmVjdG9yeSNfZ2F0LkdBX1RyYWNrZXJfLl9saW5rCgkJaWYgKCBhWzBdID09PSAnX2xpbmsnICYmIHR5cGVvZiBhWzFdID09PSAnc3RyaW5nJyApIHsKCQkJd2luZG93LmxvY2F0aW9uLmFzc2lnbihhWzFdKTsKCQl9CgkJLy8gaHR0cHM6Ly9naXRodWIuY29tL2dvcmhpbGwvdUJsb2NrL2lzc3Vlcy8yMTYyCgkJaWYgKCBhWzBdID09PSAnX3NldCcgJiYgYVsxXSA9PT0gJ2hpdENhbGxiYWNrJyAmJiB0eXBlb2YgYVsyXSA9PT0gJ2Z1bmN0aW9uJyApIHsKCQkJYVsyXSgpOwoJCX0KCX07CgkvLwoJdmFyIHRyYWNrZXIgPSAoZnVuY3Rpb24oKSB7CgkJdmFyIG91dCA9IHt9OwoJCXZhciBhcGkgPSBbCgkJCSdfYWRkSWdub3JlZE9yZ2FuaWMgX2FkZElnbm9yZWRSZWYgX2FkZEl0ZW0gX2FkZE9yZ2FuaWMnLAoJCQknX2FkZFRyYW5zIF9jbGVhcklnbm9yZWRPcmdhbmljIF9jbGVhcklnbm9yZWRSZWYgX2NsZWFyT3JnYW5pYycsCgkJCSdfY29va2llUGF0aENvcHkgX2RlbGV0ZUN1c3RvbVZhciBfZ2V0TmFtZSBfc2V0QWNjb3VudCcsCgkJCSdfZ2V0QWNjb3VudCBfZ2V0Q2xpZW50SW5mbyBfZ2V0RGV0ZWN0Rmxhc2ggX2dldERldGVjdFRpdGxlJywKCQkJJ19nZXRMaW5rZXJVcmwgX2dldExvY2FsR2lmUGF0aCBfZ2V0U2VydmljZU1vZGUgX2dldFZlcnNpb24nLAoJCQknX2dldFZpc2l0b3JDdXN0b21WYXIgX2luaXREYXRhIF9saW5rIF9saW5rQnlQb3N0JywKCQkJJ19zZXRBbGxvd0FuY2hvciBfc2V0QWxsb3dIYXNoIF9zZXRBbGxvd0xpbmtlciBfc2V0Q2FtcENvbnRlbnRLZXknLAoJCQknX3NldENhbXBNZWRpdW1LZXkgX3NldENhbXBOYW1lS2V5IF9zZXRDYW1wTk9LZXkgX3NldENhbXBTb3VyY2VLZXknLAoJCQknX3NldENhbXBUZXJtS2V5IF9zZXRDYW1wYWlnbkNvb2tpZVRpbWVvdXQgX3NldENhbXBhaWduVHJhY2sgX3NldENsaWVudEluZm8nLAoJCQknX3NldENvb2tpZVBhdGggX3NldENvb2tpZVBlcnNpc3RlbmNlIF9zZXRDb29raWVUaW1lb3V0IF9zZXRDdXN0b21WYXInLAoJCQknX3NldERldGVjdEZsYXNoIF9zZXREZXRlY3RUaXRsZSBfc2V0RG9tYWluTmFtZSBfc2V0TG9jYWxHaWZQYXRoJywKCQkJJ19zZXRMb2NhbFJlbW90ZVNlcnZlck1vZGUgX3NldExvY2FsU2VydmVyTW9kZSBfc2V0UmVmZXJyZXJPdmVycmlkZSBfc2V0UmVtb3RlU2VydmVyTW9kZScsCgkJCSdfc2V0U2FtcGxlUmF0ZSBfc2V0U2Vzc2lvblRpbWVvdXQgX3NldFNpdGVTcGVlZFNhbXBsZVJhdGUgX3NldFNlc3Npb25Db29raWVUaW1lb3V0JywKCQkJJ19zZXRWYXIgX3NldFZpc2l0b3JDb29raWVUaW1lb3V0IF90cmFja0V2ZW50IF90cmFja1BhZ2VMb2FkVGltZScsCgkJCSdfdHJhY2tQYWdldmlldyBfdHJhY2tTb2NpYWwgX3RyYWNrVGltaW5nIF90cmFja1RyYW5zJywKCQkJJ192aXNpdENvZGUnCgkJXS5qb2luKCcgJykuc3BsaXQoL1xzKy8pOwoJCXZhciBpID0gYXBpLmxlbmd0aDsKCQl3aGlsZSAoIGktLSApIHsKCQkJb3V0W2FwaVtpXV0gPSBub29wZm47CgkJfQoJCW91dC5fZ2V0TGlua2VyVXJsID0gZnVuY3Rpb24oYSkgewoJCQlyZXR1cm4gYTsKCQl9OwoJCXJldHVybiBvdXQ7Cgl9KSgpOwoJLy8KCXZhciBHYXQgPSBmdW5jdGlvbigpIHsKCQk7Cgl9OwoJR2F0LnByb3RvdHlwZS5fYW5vbnltaXplSVAgPSBub29wZm47CglHYXQucHJvdG90eXBlLl9jcmVhdGVUcmFja2VyID0gbm9vcGZuOwoJR2F0LnByb3RvdHlwZS5fZm9yY2VTU0wgPSBub29wZm47CglHYXQucHJvdG90eXBlLl9nZXRQbHVnaW4gPSBub29wZm47CglHYXQucHJvdG90eXBlLl9nZXRUcmFja2VyID0gZnVuY3Rpb24oKSB7CgkJcmV0dXJuIHRyYWNrZXI7Cgl9OwoJR2F0LnByb3RvdHlwZS5fZ2V0VHJhY2tlckJ5TmFtZSA9IGZ1bmN0aW9uKCkgewoJCXJldHVybiB0cmFja2VyOwoJfTsKCUdhdC5wcm90b3R5cGUuX2dldFRyYWNrZXJzID0gbm9vcGZuOwoJR2F0LnByb3RvdHlwZS5hYSA9IG5vb3BmbjsKCUdhdC5wcm90b3R5cGUuYWIgPSBub29wZm47CglHYXQucHJvdG90eXBlLmhiID0gbm9vcGZuOwoJR2F0LnByb3RvdHlwZS5sYSA9IG5vb3BmbjsKCUdhdC5wcm90b3R5cGUub2EgPSBub29wZm47CglHYXQucHJvdG90eXBlLnBhID0gbm9vcGZuOwoJR2F0LnByb3RvdHlwZS51ID0gbm9vcGZuOwoJdmFyIGdhdCA9IG5ldyBHYXQoKTsKCXdpbmRvdy5fZ2F0ID0gZ2F0OwoJLy8KCXZhciBnYXEgPSBuZXcgR2FxKCk7CgkoZnVuY3Rpb24oKSB7CgkJdmFyIGFhID0gd2luZG93Ll9nYXEgfHwgW107CgkJaWYgKCBBcnJheS5pc0FycmF5KGFhKSApIHsKCQkJd2hpbGUgKCBhYVswXSApIHsKCQkJCWdhcS5wdXNoKGFhLnNoaWZ0KCkpOwoJCQl9CgkJfQoJfSkoKTsKCXdpbmRvdy5fZ2FxID0gZ2FxLnFmID0gZ2FxOwp9KSgpOwo=";
+
+// analytics.js replacement
+// based off https://github.com/uBlockOrigin/uAssets/blob/master/filters/resources.txt#L286
+var ga_analytics_js_txt = 
+    "KGZ1bmN0aW9uKCkgewogICAgY29uc29sZS5sb2coInJ1c3NlbGwgdGVzdCBnb29nbGUtYW5hbHl0aWNzLmNvbS9hbmFseXRpY3MuanMiKTsKCS8vIGh0dHBzOi8vZGV2ZWxvcGVycy5nb29nbGUuY29tL2FuYWx5dGljcy9kZXZndWlkZXMvY29sbGVjdGlvbi9hbmFseXRpY3Nqcy8KCXZhciBub29wZm4gPSBmdW5jdGlvbigpIHsKCQk7Cgl9OwoJdmFyIG5vb3BudWxsZm4gPSBmdW5jdGlvbigpIHsKCQlyZXR1cm4gbnVsbDsKCX07CgkvLwoJdmFyIFRyYWNrZXIgPSBmdW5jdGlvbigpIHsKCQk7Cgl9OwoJdmFyIHAgPSBUcmFja2VyLnByb3RvdHlwZTsKCXAuZ2V0ID0gbm9vcGZuOwoJcC5zZXQgPSBub29wZm47CglwLnNlbmQgPSBub29wZm47CgkvLwoJdmFyIGdhTmFtZSA9IHdpbmRvdy5Hb29nbGVBbmFseXRpY3NPYmplY3QgfHwgJ2dhJzsKCXZhciBnYSA9IGZ1bmN0aW9uKCkgewoJCXZhciBsZW4gPSBhcmd1bWVudHMubGVuZ3RoOwoJCWlmICggbGVuID09PSAwICkgewoJCQlyZXR1cm47CgkJfQoJCXZhciBmID0gYXJndW1lbnRzW2xlbi0xXTsKCQlpZiAoIHR5cGVvZiBmICE9PSAnb2JqZWN0JyB8fCBmID09PSBudWxsIHx8IHR5cGVvZiBmLmhpdENhbGxiYWNrICE9PSAnZnVuY3Rpb24nICkgewoJCQlyZXR1cm47CgkJfQoJCXRyeSB7CgkJCWYuaGl0Q2FsbGJhY2soKTsKCQl9IGNhdGNoIChleCkgewoJCX0KCX07CglnYS5jcmVhdGUgPSBmdW5jdGlvbigpIHsKCQlyZXR1cm4gbmV3IFRyYWNrZXIoKTsKCX07CglnYS5nZXRCeU5hbWUgPSBub29wbnVsbGZuOwoJZ2EuZ2V0QWxsID0gZnVuY3Rpb24oKSB7CgkJcmV0dXJuIFtdOwoJfTsKCWdhLnJlbW92ZSA9IG5vb3BmbjsKCXdpbmRvd1tnYU5hbWVdID0gZ2E7Cn0pKCk7Cg==";
+
+/*****/
+
+
+
 // Set browser for popup asset paths
 // chrome doesn't have getBrowserInfo so we'll default to chrome
 // and try to detect if this is firefox
@@ -132,6 +167,27 @@ chrome.webRequest.onBeforeRequest.addListener(
 
         }
         else {
+
+
+            /*
+             * experimental code substitution
+             * This demonstrates the technique of redirecting a URL with a
+             * data URL for the purpose of substituting tracker code.
+             *
+             * NOTE: this is for experimental validation purposes only
+             */
+
+            if (/google-analytics.com\/ga\.js$/.test(requestData.url)) {
+                console.log("redirecting google analytics/ga.js: " + requestData.url);
+                return {redirectUrl: b64dataheader + ga_js_txt };
+            }
+
+            if (/google-analytics.com\/analytics\.js$/.test(requestData.url)) {
+                console.log("redirecting google analytics/analytics.js: " + requestData.url);
+                return {redirectUrl: b64dataheader + ga_analytics_js_txt };
+            }
+
+
 
             /**
              * Check that we have a valid tab
