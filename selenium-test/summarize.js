@@ -7,7 +7,7 @@ const fs = require('fs')
 
 const fileNames = process.argv.splice(2)
 
-let hist = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+let hist = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
 
 // convenience function for formatting a csv column
 const column = (s) => {
@@ -15,7 +15,7 @@ const column = (s) => {
 }
 
 // column headers
-let csv_text = 'domain,initial,is major,tosdr,in major,https,obscure,blocked,total,grade\n'
+let csv_text = 'rank,domain,initial,is major,tosdr,in major,https,obscure,blocked,total,grade\n'
 
 out_fn = '';
 
@@ -27,9 +27,11 @@ fileNames.forEach(fn => {
 
     let domains = JSON.parse(fs.readFileSync(fn).toString())
 
-    domains.forEach( (domain) => {
+    domains.forEach( (domain, index) => {
 
-        let s = column(domain.url)
+        let s = column(index)
+            
+        s += column(domain.url)
 
         // assuming that the data is in column header order
         // that is the order it is in the algorithm
