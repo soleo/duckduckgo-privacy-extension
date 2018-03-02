@@ -60,7 +60,24 @@ class HTTPS {
         }
 
         console.log("HTTPS: updateList() check if new list exists at: " + url)
+
+        /* using local file for grade details testing */
+
+        load.JSONfromLocalFile('data/https.json', (data) => {
+            console.log("HTTPS: updateList() got updated list from local file")
+            try {
+                // update list in memory
+                let parsedData = JSON.parse(data)
+                httpsUpgradeList = parsedData
+                this.saveToStorage(data)
+            } catch(e) {
+                console.log("HTTPS: updateList() error parsing data")
+            }
+            console.log("HTTPS: updateList() new list has " + httpsUpgradeList.length + " items")
+
+        })
         
+    /* grade details testing
         // try to load an updated file from the server, passing
         // in the latest etag we have and only calling the callback
         // with the new file if the etag on the server is different:
@@ -94,9 +111,10 @@ class HTTPS {
                 console.log("HTTPS: updateList() error parsing server response")
             }
         })
+    */
 
         // schedule the next check:
-        setTimeout(this.updateList.bind(this), UPDATE_INTERVAL)
+        // disabled for testing // setTimeout(this.updateList.bind(this), UPDATE_INTERVAL)
     }
 
     getFromStorage (fn) {
