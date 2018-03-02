@@ -228,13 +228,15 @@ exports.testUrls = async function(urlArray, opts) {
                 if (site.url && site.scoreObj && site.scoreObj.gradedetails) {
 
                     let score = site.scoreObj
+
+
                     let scoreArray = [
                             score.hasHTTPS ? 1 : 0,
                             score.isaMajorTrackingNetwork ? 1 : 0,
                             score.totalBlocked,
                             score.hasObscureTracker ? 1 : 0,
                             score.inMajorTrackingNetwork? 1 : 0,
-                            score.tosdr ? score.tosdr.score : '-'
+                            (score.tosdr && score.tosdr.score) ? score.tosdr.score : '-'
                         ]
 
                     let csvtext = `${rank},${path},${csvSimple(scoreArray)},${csvDetails(site.scoreObj.gradedetails)}`
