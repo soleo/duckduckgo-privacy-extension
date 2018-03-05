@@ -1,8 +1,4 @@
 module.exports = {
-    "trackerListLoc": "data/tracker_lists",
-    "blockLists": [
-        "trackersWithParentCompany.json"
-    ],
     "entityList": "https://duckduckgo.com/contentblocking.js?l=entitylist",
     "entityMap": "data/tracker_lists/entityMap.json",
     "easylists": ["privacy", "general"],

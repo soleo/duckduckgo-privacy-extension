@@ -5,8 +5,8 @@ const load = require('./load')
 const settings = require('./settings')
 const utils = require('./utils')
 const surrogates = require('./surrogates')
-const trackerLists = require('./trackerLists').getLists()
 const abpLists = require('./abp-preprocessed.es6')
+const trackersWithParentCompany = require('../data/tracker_lists/trackersWithParentCompany')
 const constants = require('../data/constants')
 
 let entityList
@@ -176,8 +176,8 @@ function checkTrackersWithParentCompany (blockSettings, url, currLocation) {
         // Other trackers are listed using their subdomains. Ex: developers.google.com.
         // We'll start by checking the full host with subdomains and then if no match is found
         // try pulling off the subdomain and checking again.
-        if (trackerLists.trackersWithParentCompany[trackerType]) {
-            var tracker = trackerLists.trackersWithParentCompany[trackerType][trackerURL]
+        if (trackersWithParentCompany[trackerType]) {
+            var tracker = trackersWithParentCompany[trackerType][trackerURL]
             if (tracker) {
                 if (!isRelatedEntity(tracker.c, currLocation)) {
                     return toBlock = {
