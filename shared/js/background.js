@@ -35,9 +35,6 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
 });
 
 function Background() {
-  // clearing last search on browser startup
-  settings.updateSetting('last_search', '')
-
   var os = "o";
   if (window.navigator.userAgent.indexOf("Windows") != -1) os = "w";
   if (window.navigator.userAgent.indexOf("Mac") != -1) os = "m";
