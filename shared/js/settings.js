@@ -13,12 +13,6 @@ let _ready = init().then(() => {
     console.log("Settings are loaded")
 })
 
-// external settings defines a function that needs to run when a setting is updated
-let isExtensionEnabled
-var externalSettings = {
-    'httpsEverywhereEnabled': function(value){ isExtensionEnabled = value }
-};
-
 function init() {
     return new Promise ((resolve, reject) => {
         buildSettingsFromDefaults()
@@ -39,23 +33,9 @@ function buildSettingsFromLocalStorage() {
             // copy over saved settings from storage
             Object.assign(settings, results['settings']);
 
-            runExternalSettings();
             resolve()
         })
     })
-}
-
-function runExternalSettings(){
-    for(var settingName in settings){
-        let value = settings[settingName];
-        runExternalSetting(settingName, value);
-    }
-}
-
-function runExternalSetting(name, value){
-    if(externalSettings[name] && typeof(externalSettings[name]) === 'function'){
-        externalSettings[name](value);
-    }
 }
 
 function buildSettingsFromDefaults() {
@@ -91,7 +71,6 @@ function updateSetting(name, value) {
     }
 
     settings[name] = value;
-    runExternalSetting(name, value);
     syncSettingTolocalStorage();
 }
 
