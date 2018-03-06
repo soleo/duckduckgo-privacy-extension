@@ -67,13 +67,17 @@ class HTTPS {
             console.log("HTTPS: updateList() got updated list from local file")
             try {
                 // update list in memory
-                let parsedData = JSON.parse(data)
-                httpsUpgradeList = parsedData
+                // let parsedData = JSON.parse(data)
+                // httpsUpgradeList = parsedData
+                httpsUpgradeList = data
+
+                console.log("HTTPS: updateList() new list has " + httpsUpgradeList.length + " items")
+
                 this.saveToStorage(data)
+                
             } catch(e) {
-                console.log("HTTPS: updateList() error parsing data")
+                console.log("HTTPS: updateList() error parsing data: " + e)
             }
-            console.log("HTTPS: updateList() new list has " + httpsUpgradeList.length + " items")
 
         })
         
