@@ -132,8 +132,8 @@ exports.testUrl = function(path, opts) {
 };
 
 let hist = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-// let csvHeaders = 'rank,domain,initial,is major,tosdr,in major,https,obscure,blocked,total,grade\n'
-let csvHeaders = 'rank,domain,hasHTTPS,is major network,total blocked,obscure,in major,tosdr,initial,in major,tosdr,in major,https,obscure,blocked,total,grade\n'
+let csvHeaders = 'rank,domain,initial,is major,tosdr,in major,https,obscure,blocked,total,grade\n'
+// let csvHeaders = 'rank,domain,hasHTTPS,is major network,total blocked,obscure,in major,tosdr,initial,in major,tosdr,in major,https,obscure,blocked,total,grade\n'
 
 let csvDetails = (details) => {
     let cols = ''
@@ -239,7 +239,8 @@ exports.testUrls = async function(urlArray, opts) {
                             (score.tosdr && score.tosdr.score) ? score.tosdr.score : '-'
                         ]
 
-                    let csvtext = `${rank},${path},${csvSimple(scoreArray)},${csvDetails(site.scoreObj.gradedetails)}`
+                    // let csvtext = `${rank},${path},${csvSimple(scoreArray)},${csvDetails(site.scoreObj.gradedetails)}`
+                    let csvtext = `${rank},${path},${csvDetails(site.scoreObj.gradedetails)}`
                     console.log(csvtext)
                     appendLine(csvPath, `${csvtext}\n`)
 
