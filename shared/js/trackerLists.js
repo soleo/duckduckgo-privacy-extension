@@ -1,6 +1,6 @@
-const settings = require('./settings')
-const load = require('./load')
 const constants = require('../data/constants')
+const fs = require('fs')
+
 let lists = {}
 
 function getLists () {
@@ -15,14 +15,18 @@ function loadLists(){
     var listLocation = constants.trackerListLoc
     var blockLists = constants.blockLists
     blockLists.forEach( function(listName) {
-        load.JSONfromLocalFile(listLocation + "/" + listName, (listJSON) => {
-            console.log(`Loaded tracker list: ${listLocation}/${listName}`)
-            lists[listName.replace('.json', '')] = listJSON
+        fs.readFile("../" + listLocation + "/" + listName, (err, data) => {
+            if (!err) {
+                console.log(`Loaded tracker list: ${listLocation}/${listName}`)
+                lists[listName.replace('.json', '')] = JSON.parse(data)
+            } else {
+                console.log(err)
+            }
         })
     })
 }
 
-settings.ready().then(() => loadLists())
+loadLists()
 
 module.exports = {
     getLists: getLists

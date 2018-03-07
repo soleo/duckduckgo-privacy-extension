@@ -7,6 +7,7 @@ function JSONfromExternalFile(url, cb){
         loadExtensionFile({url: url, returnType: 'json', source: 'external'}, (res, xhr) => cb(JSON.parse(res), xhr))
     }
     catch(e) {
+        console.log(e)
         return {}
     }
 }

@@ -1,6 +1,7 @@
 /****
  * 
  */
+const btoa = require('btoa')
 
 let surrogateList = {}
 

@@ -11,6 +11,7 @@ const defaultSettings = require('../data/defaultSettings')
 const surrogates = require('./surrogates')
 const settings = require('./settings')
 const load = require('./load')
+const request = require('request')
 
 const ONEDAY = 1000*60*60*24
 
@@ -95,13 +96,14 @@ function updateLists () {
             // if we don't have parsed list data skip the etag to make sure we
             // get a fresh copy of the list to process
             if (Object.keys(list.parsed).length === 0) etag = ''
-                
-            load.loadExtensionFile({url: url, source: 'external', etag: etag}, (listData, response) => {
-                const newEtag = response.getResponseHeader('etag') || ''
+            request({method: 'GET', uri: url, gzip: true}, (err, response, listData) => {
+                if (err) console.log(err)
+
+                //const newEtag = response.getResponseHeader('etag') || ''
                 console.log('Updating list: ', name)
                 
                 // sync new etag to storage
-                settings.updateSetting(constantsName + '-etag', newEtag)
+                //settings.updateSetting(constantsName + '-etag', newEtag)
                 
                 list.parser.parse(listData, list.parsed)
 
@@ -116,16 +118,16 @@ function updateLists () {
 
     // load broken site list
     // source: https://github.com/duckduckgo/content-blocking-whitelist/blob/master/trackers-whitelist-temporary.txt
-    load.loadExtensionFile({url: constants.trackersWhitelistTemporary, etag: trackersWhitelistTemporaryEtag, source: 'external'}, (listData, response) => {
-        const newTrackersWhitelistTemporaryEtag = response.getResponseHeader('etag') || ''
-        settings.updateSetting('trackersWhitelistTemporary-etag', newTrackersWhitelistTemporaryEtag);
+    request({method: 'GET', gzip: true, uri: constants.trackersWhitelistTemporary}, (err, response, listData) => {
+        //const newTrackersWhitelistTemporaryEtag = response.getResponseHeader('etag') || ''
+        //settings.updateSetting('trackersWhitelistTemporary-etag', newTrackersWhitelistTemporaryEtag);
 
         trackersWhitelistTemporary = listData.trim().split('\n')
     })
 }
 
 // Make sure the list updater runs on start up
-settings.ready().then(() => updateLists())
+updateLists()
 
 chrome.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'updateLists') {

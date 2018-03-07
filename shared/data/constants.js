@@ -9,7 +9,7 @@ module.exports = {
     "blocking": ["Advertising", "Analytics"],
     "requestListenerTypes": ["main_frame","sub_frame","stylesheet","script","image","object","xmlhttprequest","other"],
     "trackersWhitelistTemporary": "https://duckduckgo.com/contentblocking/trackers-whitelist-temporary.txt",
-    "trackersWhitelist": "https://duckduckgo.com/contentblocking/trackers-whitelist.txt",
+    "trackersWhitelist": "https://raw.githubusercontent.com/duckduckgo/content-blocking-whitelist/5817a8544e814433cd46b88c426e432741f6f515/trackers-whitelist.txt",
     "generalEasylist": "https://duckduckgo.com/contentblocking.js?l=easylist",
     "privacyEasylist": "https://duckduckgo.com/contentblocking.js?l=easyprivacy",
     "surrogateList": "https://duckduckgo.com/contentblocking.js?l=surrogates",

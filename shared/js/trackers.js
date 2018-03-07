@@ -1,21 +1,11 @@
-const abp = require('abp-filter-parser')
 const tldjs = require('tldjs')
 
 const load = require('./load')
 const settings = require('./settings')
 const utils = require('./utils')
 const surrogates = require('./surrogates')
-const trackerLists = require('./trackerLists').getLists()
-const abpLists = require('./abp-preprocessed.es6')
+
 const constants = require('../data/constants')
-
-let entityList
-let entityMap
-
-settings.ready().then(() => {
-    load.JSONfromExternalFile(constants.entityList, (list) => entityList = list)
-    load.JSONfromExternalFile(constants.entityMap, (list) => entityMap = list)
-})
 
 function isTracker(urlToCheck, thisTab, request) {
     let currLocation = thisTab.url || ''
@@ -31,14 +21,14 @@ function isTracker(urlToCheck, thisTab, request) {
     // DEMO embedded tweet option
     // a more robust test for tweet code may need to be used besides just
     // blocking platform.twitter.com
-    if (settings.getSetting('embeddedTweetsEnabled') === false) {
+    if (1 || settings.getSetting('embeddedTweetsEnabled') === false) {
         if (/platform.twitter.com/.test(urlToCheck)) {
             console.log('blocking tweet embedded code on ' + urlToCheck)
             return {parentCompany: 'Twitter', url: 'platform.twitter.com', type: 'Analytics'}
         }
     }
 
-    if (settings.getSetting('trackerBlockingEnabled')) {
+    if (1 || settings.getSetting('trackerBlockingEnabled')) {
 
         let parsedUrl = tldjs.parse(urlToCheck)
         let hostname
@@ -86,7 +76,7 @@ function isTracker(urlToCheck, thisTab, request) {
         // tracker is related to the current site. If this is the case we consider it to be the
         // same as a first party requrest and return
         var trackerByParentCompany = checkTrackersWithParentCompany(blockSettings, urlSplit, currLocation)
-        if (trackerByParentCompany) {
+        if (0 && trackerByParentCompany) {
         // check cancel to see if this tracker is related to the current site
             if (trackerByParentCompany.cancel) {
                 return
