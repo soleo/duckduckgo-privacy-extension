@@ -91,7 +91,7 @@ function updateLists () {
                 if (versionParam) url += versionParam
             }
 
-            console.log('Checking for list update: ', name)
+            //console.log('Checking for list update: ', name)
 
             // if we don't have parsed list data skip the etag to make sure we
             // get a fresh copy of the list to process
@@ -100,7 +100,7 @@ function updateLists () {
                 if (err) console.log(err)
 
                 //const newEtag = response.getResponseHeader('etag') || ''
-                console.log('Updating list: ', name)
+                //console.log('Updating list: ', name)
                 
                 // sync new etag to storage
                 //settings.updateSetting(constantsName + '-etag', newEtag)

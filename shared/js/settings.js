@@ -69,7 +69,7 @@ function syncSettingTolocalStorage(){
 
 function getSetting(name) {
     if (!isReady) {
-        console.warn(`Settings: getSetting() Settings not loaded: ${name}`)
+        //console.warn(`Settings: getSetting() Settings not loaded: ${name}`)
         return
     }
 
@@ -86,7 +86,7 @@ function getSetting(name) {
 
 function updateSetting(name, value) {
     if (!isReady) {
-        console.warn(`Settings: updateSetting() Setting not loaded: ${name}`)
+        //console.warn(`Settings: updateSetting() Setting not loaded: ${name}`)
         return
     }
 
@@ -97,7 +97,7 @@ function updateSetting(name, value) {
 
 function removeSetting (name) {
     if (!isReady) {
-        console.warn(`Settings: removeSetting() Setting not loaded: ${name}`)
+        //console.warn(`Settings: removeSetting() Setting not loaded: ${name}`)
         return
     }
     if (settings[name]) {

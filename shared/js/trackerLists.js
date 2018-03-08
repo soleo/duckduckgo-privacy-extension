@@ -17,7 +17,7 @@ function loadLists(){
     blockLists.forEach( function(listName) {
         fs.readFile("../" + listLocation + "/" + listName, (err, data) => {
             if (!err) {
-                console.log(`Loaded tracker list: ${listLocation}/${listName}`)
+                //console.log(`Loaded tracker list: ${listLocation}/${listName}`)
                 lists[listName.replace('.json', '')] = JSON.parse(data)
             } else {
                 console.log(err)

@@ -23,7 +23,7 @@ function isTracker(urlToCheck, thisTab, request) {
     // blocking platform.twitter.com
     if (1 || settings.getSetting('embeddedTweetsEnabled') === false) {
         if (/platform.twitter.com/.test(urlToCheck)) {
-            console.log('blocking tweet embedded code on ' + urlToCheck)
+            //console.log('blocking tweet embedded code on ' + urlToCheck)
             return {parentCompany: 'Twitter', url: 'platform.twitter.com', type: 'Analytics'}
         }
     }
@@ -50,7 +50,7 @@ function isTracker(urlToCheck, thisTab, request) {
         }
 
         let urlSplit = hostname.split('.')
-        var social_block = settings.getSetting('socialBlockingIsEnabled')
+        var social_block = 1 || settings.getSetting('socialBlockingIsEnabled')
         var blockSettings = constants.blocking.slice(0)
 
         // don't block 1st party requests
@@ -76,7 +76,7 @@ function isTracker(urlToCheck, thisTab, request) {
         // tracker is related to the current site. If this is the case we consider it to be the
         // same as a first party requrest and return
         var trackerByParentCompany = checkTrackersWithParentCompany(blockSettings, urlSplit, currLocation)
-        if (0 && trackerByParentCompany) {
+        if (trackerByParentCompany) {
         // check cancel to see if this tracker is related to the current site
             if (trackerByParentCompany.cancel) {
                 return
@@ -143,7 +143,7 @@ function checkSurrogateList(url, parsedUrl, currLocation) {
         if (result && !isRelatedEntity(result.parentCompany, currLocation)) {
             result.block = true
             result.redirectUrl = dataURI
-            console.log("serving surrogate content for: ", url)
+            //console.log("serving surrogate content for: ", url)
             return result
         }
     }
