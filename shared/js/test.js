@@ -132,7 +132,7 @@ function runtests () {
         }
 
     })
-
+    
     // print out some results
     console.log(`\n*************************************************`)
     console.log(`Block average: ${average(testResults.blockedTimes)}`)
@@ -141,6 +141,7 @@ function runtests () {
     console.log(`No Block Max: ${Math.max(...testResults.notblockedTimes)}`)
     console.log(`DDG Blocked: ${testResults.blockedDDG}, ${testResults.blockedDDG/requestLog.ddglog.length*100}%`)
     console.log(`${outputname} Blocked: ${testResults.blockedOther}, ${testResults.blockedOther/requestLog.ddglog.length*100}%`)
+
 
     // print out a sorted list of filters
     filtersSorted = Object.keys(testResults.filters).sort(function(a,b){return testResults.filters[b]-testResults.filters[a]})
@@ -161,5 +162,8 @@ function runtests () {
                 console.log(`${outputname}.csv saved.`);
         })
     })
+
+    fs.writeFile('blocking.txt', testResults.blockedTimes, (err) => console.log(err))
+    fs.writeFile('nonblocking.txt', testResults.notblockedTimes, (err) => console.log(err))
 }
 
