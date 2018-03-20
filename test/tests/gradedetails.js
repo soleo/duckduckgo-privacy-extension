@@ -39,7 +39,8 @@ function runTest(url) {
                     siteDetails.push({
                         url: url,
                         scoreObj: tabObj.site.score,
-                        score: tabObj.site.score.get()
+                        score: tabObj.site.score.get(),
+                        trackers: tabObj.site.trackers
                     })
                 }
 

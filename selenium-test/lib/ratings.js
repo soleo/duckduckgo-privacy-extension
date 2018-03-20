@@ -10,7 +10,6 @@ const fileUrl = require('file-url');
 
 require('runtimer');
 
-// VARS
 const EXTENSIONS_URL = 'chrome://extensions';
 
 let EXT_ID,
@@ -88,12 +87,7 @@ function _buildHtmlDoc(htmlTable) {
 
 
 function _writeToFile (jsonText, opts) {
-    const filename = new Date().toJSON()
-    const jsonData = JSON.parse(jsonText)
-    const path = opts.output.replace(/\/$/, '')
-
-    // JSON File Output
-    const jsonFile = `${path}/${filename}.json`
+    const jsonFile = `${opts.output}.json`
     fs.writeFileSync(jsonFile, jsonText)
 
     log(`JSON Data written to ${jsonFile}`)
@@ -132,7 +126,7 @@ exports.testUrl = function(path, opts) {
 };
 
 let hist = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-let csvHeaders = 'rank,domain,initial,is major,tosdr,in major,https,obscure,blocked,total,grade\n'
+let csvHeaders = 'rank,domain,requests,initial,is major,tosdr,in major,https,obscure,blocked,total,grade\n'
 // let csvHeaders = 'rank,domain,hasHTTPS,is major network,total blocked,obscure,in major,tosdr,initial,in major,tosdr,in major,https,obscure,blocked,total,grade\n'
 
 let csvDetails = (details) => {
@@ -184,13 +178,9 @@ exports.testUrls = async function(urlArray, opts) {
         await _init();
         let jsonArray = [];
 
-
-        const filename = new Date().toJSON()
-        const path = opts.output.replace(/\/$/, '')
-
-        const jsonPath = `${path}/${filename}.json`
-        const csvPath = `${path}/${filename}.csv`
-        const histPath = `${path}/${filename}.hist.csv`
+        const jsonPath = `${opts.output}.json`
+        const csvPath  = `${opts.output}.csv`
+        const histPath = `${opts.output}.hist.csv`
 
         console.log(`Testing with ${TEST_URL}`)
         console.log(`writing intermediate results to ${csvPath}`)
@@ -240,13 +230,14 @@ exports.testUrls = async function(urlArray, opts) {
                         ]
 
                     // let csvtext = `${rank},${path},${csvSimple(scoreArray)},${csvDetails(site.scoreObj.gradedetails)}`
-                    let csvtext = `${rank},${path},${csvDetails(site.scoreObj.gradedetails)}`
+                    let csvtext = `${rank},${path},${score.totalBlocked},${csvDetails(site.scoreObj.gradedetails)}`
                     console.log(csvtext)
                     appendLine(csvPath, `${csvtext}\n`)
 
                     let o = {
                         url: site.url,
                         details: site.scoreObj.gradedetails,
+                        trackers: site.trackers,
                         score: scoreArray
                     }
 

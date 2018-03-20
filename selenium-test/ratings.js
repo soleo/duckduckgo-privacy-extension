@@ -11,11 +11,12 @@ const log = console.log;
 const error = console.error;
 
 program
-    .option('-n, --number <n>', 'Number of top 500 sites to test', parseInt)
+    // .option('-n, --number <n>', 'Number of top 500 sites to test', parseInt)
     .option('-f, --file <file>', 'File containing list of domains to test')
+    .option('-t, --trackers', 'Log trackers')
     .option('-u, --url <path>', 'URL to test')
-    .option('-x, --xvbf', 'Use Xvbf')
-    .option('-o, --output <path>', 'Output location')
+    .option('-x, --xvfb', 'Use Xvfb')
+    .option('-o, --output <path>', 'Output pathname')
     .parse(process.argv);
 
 async function runTest(opts) {
@@ -37,14 +38,24 @@ async function runTest(opts) {
 }
 
 (async () => {
-    let opts = {
-        output: program.output || '.'
-    };
+    let d = new Date().toJSON()
+
+    let opts = {}
+
+    if (! program.output) {
+        opts.output = d
+    }
+    else {
+        opts.output = `${program.output}-${d}`
+    }
 
     if (program.xvbf) {
         let xvfb = new Xvfb({ reuse: true });
         log(chalk.green.bold("Starting xvfb..."));
         xvfb.startSync();
+
+
+
         await runTest(opts);
         log(chalk.green.bold("Stopping xvfb..."));
         xvfb.stopSync();
