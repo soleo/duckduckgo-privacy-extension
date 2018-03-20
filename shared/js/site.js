@@ -306,6 +306,8 @@ class Site {
         if (domain) domain = domain.toLowerCase()
         this.domain = domain,
         this.trackerUrls = [],
+        // { parent: { trackerurl : { tracker }, trackerurl : {tracker} }
+        this.trackers = {},
         this.score = new Score(this.specialDomain(), this.domain);
         this.whitelisted = false; // user-whitelisted sites; applies to all privacy features
         this.setWhitelistStatusFromGlobal(domain);
@@ -355,6 +357,17 @@ class Site {
     isWhiteListed () { return this.whitelisted }
 
     addTracker (tracker) {
+
+        if (!this.trackers[tracker.parentCompany])
+            this.trackers[tracker.parentCompany] = {}
+
+        this.trackers[tracker.parentCompany][tracker.url] = tracker
+
+        // }
+        // else {
+        //     this.trackers[tracker.parentCompany] = [ tracker ];
+        // }
+
         if (this.trackerUrls.indexOf(tracker.url) === -1){
             this.trackerUrls.push(tracker.url)
             this.score.update({trackerBlocked: tracker, totalBlocked: this.trackerUrls.length})
