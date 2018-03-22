@@ -10,6 +10,16 @@ var trackerList = { TopTrackerDomains: {} }
 var trackerTypes = ['Advertising', 'Analytics', 'Social']
 var companyList
 
+
+let parentMap = {
+
+//   'Yahoo!': 'Oath',
+//   'AOL' : 'Oath',
+//   'BrightRoll' : 'Oath'
+
+}
+
+
 global.companyList = function (listData) {
     return new Promise ((resolve) => {
         request({
@@ -27,7 +37,8 @@ global.companyList = function (listData) {
                                 for (var domain in entry[name]){
                                     if (entry[name][domain].length) {
                                         entry[name][domain].forEach((trackerURL) => {
-                                            addToList(type, trackerURL, {'c': name, 'u': domain});
+                                            let nameRemapped = parentMap[name] || name
+                                            addToList(type, trackerURL, {'c': nameRemapped, 'u': domain});
                                         });
                                     }
                                 }

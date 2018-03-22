@@ -70,6 +70,8 @@ require.scopes.trackers = (function() {
 
             // don't block 1st party requests
             if (isFirstPartyRequest(currLocation, urlToCheck)) {
+
+                console.log(`[first party] Unblocking ${urlToCheck}`)
                 return
             }
             if (social_block) {
@@ -213,8 +215,16 @@ require.scopes.trackers = (function() {
     * Only block request to 3rd parties
     */
     function isRelatedEntity(parentCompany, currLocation) {
+
+
+
         var parentEntity = entityList[parentCompany]
         var host = utils.extractHostFromURL(currLocation)
+
+        console.log(`isRelatedEntity: host is ${host}`)
+        console.log(`isRelatedEntity: looking for ${parentCompany}: ${parentEntity}`)
+
+
 
         if(parentEntity && parentEntity.properties) {
 
@@ -223,11 +233,23 @@ require.scopes.trackers = (function() {
                 parentEntity.regexProperties = parentEntity.properties.join('|')
             }
 
+            console.log(`isRelatedEntity: matching against ${parentEntity.regexProperties}`)
+
             if (host.match(parentEntity.regexProperties)) {
+                console.log('isRelatedEntity: match')
                 return true
             }
 
+
+            console.log('isRelatedEntity: no match')
+
         }
+
+        console.log(`no parent entity or no parent entity proeperties for ${host}`)
+
+        if (parentEntity)
+            console.log(parentEntity)
+
         return false
     }
 
@@ -242,9 +264,14 @@ require.scopes.trackers = (function() {
             return true
         } else {
             let parentEntity = entityMap[urlToCheckParsed.domain]
+
+            console.log(`[first party] looking for ${urlToCheckParsed.domain} – found ${parentEntity}`)
+
             if (parentEntity) {
                 return isRelatedEntity(parentEntity, currLocation)
             }
+
+            console.log(`[first party] No parent entity for ${urlToCheckParsed.domain}`)
         }
         return false
     }

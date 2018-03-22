@@ -3,7 +3,7 @@ let constants = {
     "blockLists": [
         "trackersWithParentCompany.json"
     ],
-    "entityList": "https://duckduckgo.com/contentblocking.js?l=entitylist",
+    "entityList": "data/tracker_lists/entityList.json",
     "entityMap": "data/tracker_lists/entityMap.json",
     "easylists": ["privacy", "general"],
     "blocking": ["Advertising", "Analytics"],

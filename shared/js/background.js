@@ -271,7 +271,11 @@ chrome.webRequest.onBeforeRequest.addListener(
         if (url.toLowerCase() !== requestData.url.toLowerCase()) {
             console.log('HTTPS: upgrade request url to ' + url)
             if (isMainFrame) {
+
+                thisTab.site.hasHTTPS = true
+
                 thisTab.upgradedHttps = true
+
                 thisTab.lastHttpsUpgrade = {
                     url: requestData.url,
                     time: Date.now()
