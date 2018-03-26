@@ -13,9 +13,9 @@ var companyList
 
 let parentMap = {
 
-//   'Yahoo!': 'Oath',
-//   'AOL' : 'Oath',
-//   'BrightRoll' : 'Oath'
+  'Yahoo!': 'Oath',
+  'AOL' : 'Oath',
+  'BrightRoll' : 'Oath'
 
 }
 

@@ -21,9 +21,9 @@ let oathArray = oathSitesText.split(/\r?\n/)
 
       let parentMap = {
 
-          // 'Yahoo!': 'Oath',
-          // 'AOL' : 'Oath',
-          // 'BrightRoll' : 'Oath'
+          'Yahoo!': 'Oath',
+          'AOL' : 'Oath',
+          'BrightRoll' : 'Oath'
 
       }
 

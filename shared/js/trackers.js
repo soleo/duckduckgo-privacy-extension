@@ -68,12 +68,48 @@ require.scopes.trackers = (function() {
             var social_block = settings.getSetting('socialBlockingIsEnabled')
             var blockSettings = constants.blocking.slice(0)
 
-            // don't block 1st party requests
-            if (isFirstPartyRequest(currLocation, urlToCheck)) {
+            let trackerByParentCompany = checkTrackersWithParentCompany(blockSettings, urlSplit, currLocation)
 
-                console.log(`[first party] Unblocking ${urlToCheck}`)
-                return
+            // don't block 1st party requests
+            let pe = isFirstPartyRequest(currLocation, urlToCheck)
+            if (pe) {
+
+                console.log(`[isTracker] found first party for ${urlToCheck}`)
+                if (trackerByParentCompany) {
+                    // trackerByParentCompany.block = false
+
+                    console.log(`[isTracker parent]:`, trackerByParentCompany )
+
+                    // if (pe !== true) {
+                    //     trackerByParentCompany.parentCompany = pe
+                    // }
+
+                    // console.log(` -- found parent company for ${urlToCheck}: ${trackerByParentCompany.parentCompany}`)
+                    // // console.log(`[first party] Unblocking ${urlToCheck}`)
+                    // console.log(trackerByParentCompany)
+                    return trackerByParentCompany
+                }
+                else {
+                    console.log(` -- no parent company for ${urlToCheck}`)
+
+                    let fpx = getTrackerDetails (urlToCheck, 'test')
+
+                    if (pe !== true)
+                        fpx.parentCompany = pe
+                    else
+                        fpx.parentCompany = hostname
+
+                    console.log(` -- set parentCompany = ${fpx.parentCompany} from ${fpx}`)
+                    
+                    fpx.block = false
+                    return fpx
+                }
+                // else fall through
+
+
+
             }
+
             if (social_block) {
                 blockSettings.push('Social')
             }
@@ -92,7 +128,7 @@ require.scopes.trackers = (function() {
             // Look up trackers by parent company. This function also checks to see if the poential
             // tracker is related to the current site. If this is the case we consider it to be the
             // same as a first party requrest and return
-            var trackerByParentCompany = checkTrackersWithParentCompany(blockSettings, urlSplit, currLocation)
+            // var trackerByParentCompany = checkTrackersWithParentCompany(blockSettings, urlSplit, currLocation)
             if (trackerByParentCompany) {
             // check cancel to see if this tracker is related to the current site
                 if (trackerByParentCompany.cancel) {
@@ -192,7 +228,12 @@ require.scopes.trackers = (function() {
                         }
                     }
                     else {
-                        return toBlock = {cancel: 'relatedEntity'}
+                        return toBlock = {
+                            parentCompany: tracker.c,
+                            url: trackerURL,
+                            type: trackerType,
+                            block: false
+                        }
                     }
                 }
             }
@@ -221,9 +262,7 @@ require.scopes.trackers = (function() {
         var parentEntity = entityList[parentCompany]
         var host = utils.extractHostFromURL(currLocation)
 
-        console.log(`isRelatedEntity: host is ${host}`)
-        console.log(`isRelatedEntity: looking for ${parentCompany}: ${parentEntity}`)
-
+        console.log(`isRelatedEntity: host is '${host}', looking for parent '${parentCompany}':`)
 
 
         if(parentEntity && parentEntity.properties) {
@@ -233,11 +272,11 @@ require.scopes.trackers = (function() {
                 parentEntity.regexProperties = parentEntity.properties.join('|')
             }
 
-            console.log(`isRelatedEntity: matching against ${parentEntity.regexProperties}`)
+            console.info(`isRelatedEntity: matching against ${parentEntity.regexProperties}`)
 
             if (host.match(parentEntity.regexProperties)) {
                 console.log('isRelatedEntity: match')
-                return true
+                return parentCompany; //true
             }
 
 
@@ -245,10 +284,10 @@ require.scopes.trackers = (function() {
 
         }
 
-        console.log(`no parent entity or no parent entity proeperties for ${host}`)
+        // console.log(`no parent entity or no parent entity proeperties for ${host}`)
 
-        if (parentEntity)
-            console.log(parentEntity)
+        // if (parentEntity)
+        //     console.log(parentEntity)
 
         return false
     }
@@ -261,11 +300,18 @@ require.scopes.trackers = (function() {
         let urlToCheckParsed = tldjs.parse(urlToCheck)
 
         if (currentLocationParsed.domain === urlToCheckParsed.domain) {
-            return true
+            console.log('[first party] same domain, returning true')
+            let parentEntity = entityMap[urlToCheckParsed.domain]
+            let teste = false;
+            if (parentEntity) {
+                teste = isRelatedEntity(parentEntity, currLocation)
+            }
+            return teste || true
         } else {
             let parentEntity = entityMap[urlToCheckParsed.domain]
 
             console.log(`[first party] looking for ${urlToCheckParsed.domain} – found ${parentEntity}`)
+            console.log(`  -- for ${urlToCheck}`)
 
             if (parentEntity) {
                 return isRelatedEntity(parentEntity, currLocation)
@@ -308,7 +354,8 @@ require.scopes.trackers = (function() {
     }
 
     return {
-        isTracker: isTracker
+        isTracker: isTracker,
+        isFirstPartyRequest: isFirstPartyRequest
     }
 
 })()

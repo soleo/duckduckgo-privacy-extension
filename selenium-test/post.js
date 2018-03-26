@@ -4,10 +4,10 @@ let last_fn
 // parent company -> site
 let parents = { }
 
-
 // parentdomain => [ tracker url, tracker url ]
 // 'Yahoo!techcrunch.com': [ 'geo.yahoo.com' ]
 let parent_domain = { }
+let parent_unblocked = { }
 
 let domain = (u) => {
     let m = u.match(/https?:\/\/(.+)$/);
@@ -27,17 +27,28 @@ fileNames.forEach( (fn) => {
     sitesArray.forEach( (s) => {
         // console.log(s.url)
 
+        // "url": "http://engadget.com"
         let url = domain(s.url)
         console.log(url)
+        // let unblocked = { }
+        let local_unblocked = { }
 
+        // "Oath": {
+        //     "s.yimg.com": {
+        //     "parentCompany": "Oath",
+        //     "url": "s.yimg.com",
+        //     "type": "test",
+        //     "block": false
+        // },
+        // k == 'Oath'
         Object.keys(s.trackers).forEach( (k) => {
-            console.log(`    ${k}`)
+            let hasPrintedParent = false
 
             if (!parents[k])
                 parents[k] = [ ];
 
             if (parents[k].indexOf(url) == -1) {
-                parents[k].push(url)
+                parents[k].push(url) // parents['Oath'].push('http://engadget.com')
             }
 
             let pd = `${k}${url}`;
@@ -45,14 +56,60 @@ fileNames.forEach( (fn) => {
             if (!parent_domain[pd])
                 parent_domain[pd] = []
 
+            if (!parent_unblocked[pd])
+                parent_unblocked[pd] = []
+
+
             // for each tracker by parent
             Object.keys(s.trackers[k]).forEach( (pt) => {
+                // let block_status = ''
+
+                if (s.trackers[k][pt].block === false) {
+                    // block_status = '[not blocked]'
+                    if (parent_unblocked[pd].indexOf(pt) == -1) {
+                        parent_unblocked[pd].push(pt)
+
+
+                        if (!local_unblocked[k])
+                            local_unblocked[k] = []
+
+                        local_unblocked[k].push(pt)
+                    }
+
+                }
+                else
                 if (parent_domain[pd].indexOf(pt) == -1) {
                     parent_domain[pd].push(pt)
-                    console.log(`        ${pt}`)
+
+                    if (!hasPrintedParent ) { // only print the parent entity if there are blocked trackers to show
+                        hasPrintedParent = true
+                        console.log(`    ${k}`)
+                    }
+
+                    console.log(`        ${pt}`) //${block_status}`)
                 }
             })
+
+
+
+
+
         })
+
+        let unblocked_list = Object.keys(local_unblocked);
+        if (unblocked_list && unblocked_list.length > 0) {
+            console.log('\n–––\nUnblocked:')
+            // print unblocked separately
+            unblocked_list.forEach( (uparent) => {
+
+                console.log(`   ${uparent}`)
+
+                local_unblocked[uparent].forEach( (uu) => {
+                    console.log(`        ${uu}`)
+                })
+
+            })
+        }
         
         
     })
