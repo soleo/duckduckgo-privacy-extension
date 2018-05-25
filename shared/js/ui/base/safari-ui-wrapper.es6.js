@@ -9,7 +9,7 @@ if (safari &&
 } else if (safari &&
         safari.self &&
         safari.self.tab) {
-    context = 'options'
+    context = 'extensionPage'
 } else {
     throw new Error('safari-ui-wrapper couldn\'t figure out the context it\'s in')
 }
@@ -48,7 +48,7 @@ let fetch = (message) => {
         console.log(`Safari Fetch: ${JSON.stringify(message)}`)
         if (context === 'popup') {
             safari.extension.globalPage.contentWindow.message(message, resolve)
-        } else if (context === 'options') {
+        } else if (context === 'extensionPage') {
             sendOptionsMessage(message, resolve, reject)
         }
     })
