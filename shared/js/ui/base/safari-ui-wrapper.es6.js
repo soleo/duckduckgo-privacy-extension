@@ -96,11 +96,11 @@ let openExtensionPage = (path) => {
 
     let tab = safari.application.activeBrowserWindow.openTab()
     tab.url = getExtensionURL(path)
+    safari.self.hide()
 }
 
 let openOptionsPage = () => {
     openExtensionPage('/html/options.html')
-    safari.self.hide()
 }
 
 let getExtensionVersion = () => {
