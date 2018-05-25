@@ -101,6 +101,8 @@ let openExtensionPage = (path) => {
         tab.url = url
         safari.self.hide()
     } else {
+        // note: this will only work if this is happening as a direct response
+        // to a user click - otherwise it'll be blocked by Safari's popup blocker
         window.open(url, '_blank')
     }
 }
