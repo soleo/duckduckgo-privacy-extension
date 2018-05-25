@@ -98,7 +98,7 @@ let openExtensionPage = (path) => {
 
     if (context === 'popup') {
         let tab = safari.application.activeBrowserWindow.openTab()
-        tab.url = getExtensionURL(path)
+        tab.url = url
         safari.self.hide()
     } else {
         window.open(url, '_blank')
