@@ -39,6 +39,23 @@ describe('HttpsRedirects', () => {
 
             expect(canRedirect).toEqual(false)
         })
+        it('should ignore trailing slashes when considering whether to start redirect loop protection', () => {
+            httpsRedirects.registerRedirect({
+                requestId: 6,
+                url: 'http://example.com/foo',
+                type: 'main_frame'
+            })
+
+            fastForward(1500)
+
+            let canRedirect = httpsRedirects.canRedirect({
+                requestId: 7,
+                url: 'http://example.com/foo/',
+                type: 'main_frame'
+            })
+
+            expect(canRedirect).toEqual(false)
+        })
         it('should allow a repeated main frame redirect after 3s', () => {
             fastForward(4500)
 

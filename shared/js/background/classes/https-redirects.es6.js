@@ -13,7 +13,7 @@ class HttpsRedirects {
     registerRedirect (request) {
         if (request.type === 'main_frame') {
             this.mainFrameRedirect = {
-                url: request.url,
+                url: this.normalizeUrl(request.url),
                 time: Date.now()
             }
 
@@ -47,7 +47,7 @@ class HttpsRedirects {
          */
         if (request.type === 'main_frame') {
             if (this.mainFrameRedirect &&
-                    this.mainFrameRedirect.url === request.url) {
+                    this.mainFrameRedirect.url === this.normalizeUrl(request.url)) {
                 canRedirect = Date.now() - this.mainFrameRedirect.time > MAINFRAME_RESET_MS
             }
         } else if (this.redirectCounts[request.requestId]) {
@@ -84,6 +84,17 @@ class HttpsRedirects {
     resetMainFrameRedirect () {
         clearTimeout(this.clearMainFrameTimeout)
         this.mainFrameRedirect = null
+    }
+
+    normalizeUrl (url) {
+        // for the purposes of redirect loop protection, ignore trailing slash
+        // in the case of e.g. https://stephanus.tlg.uci.edu/lsj/ we can enter a
+        // three-point redirect loop where the only difference is the final /
+        if (url[url.length - 1] === '/') {
+            url = url.slice(0, -1)
+        }
+
+        return url
     }
 }
 
